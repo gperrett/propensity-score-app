@@ -1,11 +1,11 @@
-
+set.seed(29482)
 load(file="data/sim.data")
 data <- imp1
 
 covs.cont.n=c("bw","b.head","preterm","birth.o","nnhealth","momage")
 covs.cat.n=c("sex","twin","b.marr","mom.lths","mom.hs",	"mom.scoll","cig","first","booze","drugs","work.dur","prenatal","ark","ein","har","mia","pen","tex","was")
 p=length(c(covs.cont.n,covs.cat.n))
-
+Trt=data$treat
 
 covs.ols = c(covs.cont.n,covs.cat.n)
 X = data[,covs.ols]
@@ -24,15 +24,11 @@ mod.bal <- glm(formula=ytmp~(bw+b.head+preterm+birth.o+nnhealth+momage+sex+twin+
 coefs <- mod.bal$coef[-1]
 XX <- mod.bal$x[,-1]
 XX <- XX[,!is.na(coefs)]
-
-ncol(XX)
-
-
-
+XXXmat=cbind(rep(1,N),XX)
 
 
 error = 1
-tau = 4
+tau = 0
 #
 # main effects coefficients
 betaC.m0 = sample(c(0,1,2),p+1,replace=T,prob=c(.6,.3,.1))
@@ -46,11 +42,18 @@ betaC0 = c(betaC.m0,betaC.q0)
 betaC1 = c(betaC.m1,betaC.q1)
 yc0hat = (XXXmat) %*% betaC0
 yc1hat = (XXXmat) %*% betaC1 
-offset = c(mean(yc1hat[Trt==1] - yc0hat[Trt==1])) - 4
+offset = c(mean(yc1hat[Trt==1] - yc0hat[Trt==1])) - 0
 yc1hat = (XXXmat) %*% betaC1 - offset
-YC0 = rnorm(N, yc0hat, sigy)
-YC1 = rnorm(N, yc1hat, sigy)
+YC0 = rnorm(N, yc0hat, error)
+YC1 = rnorm(N, yc1hat, error)
 # YC is the vector of observed responses
 YC = YC1; YC[Trt==0] = YC0[Trt==0]
 tauCis = yc1hat[Trt==1] - yc0hat[Trt==1]
 tauC = mean(tauCis)
+data$YC  <- YC
+
+
+
+
+
+
