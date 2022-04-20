@@ -14,13 +14,16 @@ shinyUI(fluidPage(
   selectInput(inputId = 'models',
               label = 'choose a model',
               choices = c('Logistic Regression', 'Random Forest', 'BART')),
-  
-  
- 
-
+  # If log reg is chosen, give option of profit or logit
+  uiOutput('log_model_option'),
+  # selectInput(inputId = 'log_model_option',
+  #             label = 'choose a logistic regression model',
+  #             choices = NULL,)
+  # 
+  # 
     ),
   mainPanel(
-    plotOutput("histogram")
+    "main panel"
   )
 )))
 
