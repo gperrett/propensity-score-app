@@ -49,18 +49,17 @@ dashboardPage(
               
               div(style = "text-align: center",bsButton("goover", "Let's Have Some Fun!", icon("bolt"), size = "large")),
               br(),
-              h3(tags$b("Acknowledgements:")),
-              h4("This app was developed by George, Prianca, and Daisy. 
-                             We have adapted and modified part of the skeleton code from an overfitting app made by Jinglin Feng and Alex Chen(BOAST). Special thanks to them  "),
+              h4(tags$b("Acknowledgements:")),
+              h5("This app was developed by George, Prianca, and Daisy. 
+                 Special thanks to Jinglin Feng and Alex Chen, who 
+                 designed the original skeleton of this app in their 
+                 overfitting app at BOAST."),
               
       ),
 
       
       #Define the content contained within part 1 ie. tabname "result"
       tabItem(tabName = "model",
-              # div(style="display: inline-block;vertical-align:top;",
-              #     tags$a(href='https://shinyapps.science.psu.edu/',tags$img(src='homebut.PNG', width = 15))
-              # ),
               fluidRow(
                 withMathJax(),
                 column(4,
@@ -83,8 +82,13 @@ dashboardPage(
                                           # If log reg is chosen, give option of profit or logit
                                           uiOutput('log_model_option'),
                                           selectInput(inputId = 'log_model_option',
-                                                      label = 'choose a logistic regression model',
+                                                      label = 'choose logistic regression type',
                                                       choices = NULL,),
+                                          # If log reg is chosen, give option of polynomial and interaction
+                                          uiOutput('log_model_poly_interax'),
+                                          selectInput(inputId = 'log_model_poly_interax',
+                                                      label = 'choose polynomial and interaction terms',
+                                                      choices = NULL,),                                       
 
 
                                         
