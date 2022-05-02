@@ -3,7 +3,7 @@ library(shinydashboard)
 library(shinyBS)
 
 dashboardPage(
-  skin="black",
+  # skin="black",
   
   #Title
   dashboardHeader(title="Propensity Score Matching",titleWidth=235),
@@ -23,7 +23,7 @@ dashboardPage(
   dashboardBody(
     
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "sidebar.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href ="dark_mode.css"),#"sidebar.css"),
       tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: #ffb6c1}")),
       tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {background: #ffb6c1}")),
       tags$style(HTML(".js-irs-2 .irs-single, .js-irs-2 .irs-bar-edge, .js-irs-2 .irs-bar {background: #ffb6c1}"))
