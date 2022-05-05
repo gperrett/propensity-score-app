@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(shinyBS)
+library(sortable)
 
 dashboardPage(
   # skin="black",
@@ -47,7 +48,7 @@ dashboardPage(
               h4(tags$li("2. See Result: See the result ATE of your model and compare with the true ATE")),
               br(),
               
-              div(style = "text-align: center",bsButton("goover", "Let's Have Some Fun!", icon("bolt"), size = "large")),
+              div(style = "text-align: center",bsButton("define_model", "Let's Have Some Fun!", icon("bolt"), size = "large")),
               br(),
               h4(tags$b("Acknowledgements:")),
               h5("This app was developed by George, Prianca, and Daisy. 
@@ -75,23 +76,16 @@ dashboardPage(
                        br(),
                        conditionalPanel("input.plot != 0",
                                         
-                                          # choose dependent variable from dataset
+                                        # choose dependent variable from dataset
                                           selectInput(inputId = 'models',
                                                       label = 'Choose a model for p-score',
                                                       choices = c('Logistic Regression', 'Random Forest', 'BART')),
-                                          # If log reg is chosen, give option of profit or logit
+                                          
+                                        # If log reg is chosen, give option of profit or logit
                                           uiOutput('log_model_option'),
-                                          # selectInput(inputId = 'log_model_option',
-                                          #             label = 'choose logistic regression type',
-                                          #             choices = NULL,),
-                                          # If log reg is chosen, give option of polynomial and interaction
-                                          # uiOutput('log_model_poly_interax'),
-                                          # selectInput(inputId = 'log_model_poly_interax',
-                                          #             label = 'choose polynomial and interaction terms',
-                                          #             choices = NULL,),                                       
-
-
                                         
+                                        
+                                       # Click fit model button to produce results
                                         actionButton("fit_model", h5(tags$strong("Fit Model"))),
                                         br(),
                                         br()
@@ -99,54 +93,8 @@ dashboardPage(
                        )
                 ),
                 mainPanel(
+                  # If log reg is chosen, give option of polynomial terms or interaction terms
                   uiOutput("bucket"),
-                  # fluidRow(
-                  #   column(
-                  #     tags$b("Exercise"),
-                  #     width = 12,
-                  #     bucket_list(
-                  #       header = "Drag the items in any desired bucket",
-                  #       group_name = "bucket_list_group",
-                  #       orientation = "horizontal",
-                  #       add_rank_list(
-                  #         text = "Drag from here",
-                  #         labels = list(
-                  #           "one",
-                  #           "two",
-                  #           "three",
-                  #           htmltools::tags$div(
-                  #             htmltools::em("Complex"), " html tag without a name"
-                  #           ),
-                  #           "five" = htmltools::tags$div(
-                  #             htmltools::em("Complex"), " html tag with name: 'five'"
-                  #           )
-                  #         ),
-                  #         input_id = "rank_list_1"
-                  #       ),
-                  #       add_rank_list(
-                  #         text = "to here",
-                  #         labels = NULL,
-                  #         input_id = "rank_list_2"
-                  #       )
-                  #     )
-                  #   )
-                  # ),
-                  # 
-                  # fluidRow(
-                  #   splitLayout(cellWidths = c("50%", "50%"), plotOutput("train"), plotOutput("test"))),
-                  # br(),
-                  # br(),
-                  # 
-                  # fluidRow(
-                  #   plotOutput("mse")
-                  # )
-                  
-                  
-                  
-                  # tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: #000000}")),
-                  # tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {background: #000000}")),
-                  # tags$style(HTML(".js-irs-2 .irs-single, .js-irs-2 .irs-bar-edge, .js-irs-2 .irs-bar {background: #000000}")),
-                  
                   
                 ))
               
@@ -154,6 +102,23 @@ dashboardPage(
       ),
       
       tabItem(tabName = "result",
+              fluidRow(
+                column(
+                  width = 12,
+                  tags$b("Result"),
+                  column(
+                    width = 12,
+
+                    h3(tags$p("Model Summary")),
+                    # verbatimTextOutput("model_summary"),
+                    htmlOutput("model_name"),
+                    tableOutput('model_summary')
+
+
+
+                  )
+                )
+              )
               
               
       )
