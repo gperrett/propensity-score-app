@@ -81,14 +81,14 @@ dashboardPage(
                                                       choices = c('Logistic Regression', 'Random Forest', 'BART')),
                                           # If log reg is chosen, give option of profit or logit
                                           uiOutput('log_model_option'),
-                                          selectInput(inputId = 'log_model_option',
-                                                      label = 'choose logistic regression type',
-                                                      choices = NULL,),
+                                          # selectInput(inputId = 'log_model_option',
+                                          #             label = 'choose logistic regression type',
+                                          #             choices = NULL,),
                                           # If log reg is chosen, give option of polynomial and interaction
-                                          uiOutput('log_model_poly_interax'),
-                                          selectInput(inputId = 'log_model_poly_interax',
-                                                      label = 'choose polynomial and interaction terms',
-                                                      choices = NULL,),                                       
+                                          # uiOutput('log_model_poly_interax'),
+                                          # selectInput(inputId = 'log_model_poly_interax',
+                                          #             label = 'choose polynomial and interaction terms',
+                                          #             choices = NULL,),                                       
 
 
                                         
@@ -99,6 +99,39 @@ dashboardPage(
                        )
                 ),
                 mainPanel(
+                  uiOutput("bucket"),
+                  # fluidRow(
+                  #   column(
+                  #     tags$b("Exercise"),
+                  #     width = 12,
+                  #     bucket_list(
+                  #       header = "Drag the items in any desired bucket",
+                  #       group_name = "bucket_list_group",
+                  #       orientation = "horizontal",
+                  #       add_rank_list(
+                  #         text = "Drag from here",
+                  #         labels = list(
+                  #           "one",
+                  #           "two",
+                  #           "three",
+                  #           htmltools::tags$div(
+                  #             htmltools::em("Complex"), " html tag without a name"
+                  #           ),
+                  #           "five" = htmltools::tags$div(
+                  #             htmltools::em("Complex"), " html tag with name: 'five'"
+                  #           )
+                  #         ),
+                  #         input_id = "rank_list_1"
+                  #       ),
+                  #       add_rank_list(
+                  #         text = "to here",
+                  #         labels = NULL,
+                  #         input_id = "rank_list_2"
+                  #       )
+                  #     )
+                  #   )
+                  # ),
+                  # 
                   # fluidRow(
                   #   splitLayout(cellWidths = c("50%", "50%"), plotOutput("train"), plotOutput("test"))),
                   # br(),
@@ -120,7 +153,7 @@ dashboardPage(
               
       ),
       
-      tabItem(tabName = "model",
+      tabItem(tabName = "result",
               
               
       )
@@ -135,30 +168,3 @@ dashboardPage(
     
   ))
 
-
-# shinyUI(fluidPage(
-# 
-#   titlePanel("Propensity Score App"),
-# 
-#   # Load a local dataset
-#   sidebarLayout(
-#     sidebarPanel(
-#   
-#   # choose dependent variable from dataset
-#   selectInput(inputId = 'models',
-#               label = 'Choose a model for p-score',
-#               choices = c('Logistic Regression', 'Random Forest', 'BART')),
-#   # If log reg is chosen, give option of profit or logit
-#   uiOutput('log_model_option'),
-#   # selectInput(inputId = 'log_model_option',
-#   #             label = 'choose a logistic regression model',
-#   #             choices = NULL,)
-#   # 
-#   # 
-#     ),
-#   mainPanel(
-#     "main panel"
-#   )
-# )))
-# 
-# 
