@@ -1,6 +1,9 @@
 library(shiny)
 library(randomForest)
 library(randomForestExplainer)
+library(dplyr)
+library(shinycssloaders)
+library(BART)
 
 ## Helper functions
 
@@ -59,7 +62,7 @@ shinyServer(function(input, output,session) {
   output$log_model_option = renderUI({
     if(input$models == 'Logistic Regression'){
       selectInput(inputId = 'log_model_option',
-                  label = 'choose a type of logistics regression',
+                  label = 'Choose a link function',
                   choices =  c('logit','probit'))
       
     }else{NULL}})
@@ -68,7 +71,7 @@ shinyServer(function(input, output,session) {
   output$bucket = renderUI({
     if(input$models == 'Logistic Regression'){
       bucket_list(
-        header = "Please choose which variables for predictors, polynomial predictors and interaction predictors",
+        header = NULL,
         add_rank_list(
           text = "Variables",
           labels = c("bw", "b.head","preterm","birth.o","nnhealth", "momage",
@@ -95,7 +98,7 @@ shinyServer(function(input, output,session) {
       )
       
     }else{bucket_list(
-      header = "Please choose which variables for predictors",
+      header = NULL,
       add_rank_list(
         text = "Variables",
         labels = c("bw", "b.head","preterm","birth.o","nnhealth", "momage",
@@ -134,13 +137,24 @@ shinyServer(function(input, output,session) {
   
   ## Get model summary
   model_summary = eventReactive(input$fit_model, 
-                                { if(input$models=='Logistic Regression'){
+                                { 
+                                  # # Create a Progress object
+                                  # progress = Progress$new()
+                                  # # Make sure it closes when we exit this reactive, even if there's an error
+                                  # on.exit(progress$close())
+                                  # progress$set(message = "Fitting Model", value = 0)
+                                  
+                                  ## Fit models
+                                  if(input$models=='Logistic Regression'){
                                      fit_lr_model(model_formula(), data = data(), 
                                                   link = input$log_model_option)}
                                      else if(input$models == 'Random Forest'){
-                                       fit_rf_model(model_formula(), data = data())
-                                     }
+                                       fit_rf_model(model_formula(), data = data()) 
+
+                                      }
   })
+  
+
   
   ## Print model summary
   output$model_name = renderUI({
@@ -148,8 +162,8 @@ shinyServer(function(input, output,session) {
 
     if(input$models == 'Logistic Regression'){
       model_type = 'Logistic Regression'
-        link_func = paste("Link Function: ",lr_model_summary()$family[[2]])
-        aic = paste("AIC:", lr_model_summary()$aic)
+        link_func = paste("Link Function: ",model_summary()$family[[2]])
+        aic = paste("AIC:", model_summary()$aic)
         HTML(paste(model, model_type, link_func, aic,sep = '<br/>'))
     }
     else if(input$models == 'Random Forest'){
@@ -166,8 +180,18 @@ shinyServer(function(input, output,session) {
       if(input$models=='Logistic Regression'){model_summary()$coefficients}
       else if(input$models=='Random Forest'){model_summary()}}
       , rownames = TRUE)
-
   
+  ## Go to define model page after result
+  observeEvent(input$clear, {
+    updateTabItems(session, "tabs", "model")
+  })
+
+  # ## Clear output after clicking clear button
+  # observeEvent(input$clear, {
+  #   output$model_name <- renderText({})
+  #   output$model_summary = renderText({})
+  # })
+  # 
 
 
   

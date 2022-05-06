@@ -11,7 +11,7 @@ dashboardPage(
   
   #Sidebar
   dashboardSidebar(
-    width = 235,
+    width = 200,
     sidebarMenu(
       id = "tabs",
       menuItem("Introduction",tabName = "intro",icon = icon("book")),
@@ -63,40 +63,38 @@ dashboardPage(
       tabItem(tabName = "model",
               fluidRow(
                 withMathJax(),
-                column(4,
-                     #   h3("Introduction:"),
-                     #   box(width ="10.5%",background = "maroon",
-                     #       "You may observe overfitting as you increase the polynomial degree fitted on the training data. Every time
-                     # you click the generate data button, a new dataset with size = 50(training data : testing data = 8:2) will be generated from  a linear relationship with some noise.
-                     # After fitting the polynomial on the training dataset, we then test our model's perfomance on the test dataset.
-                     # 
-                     # For a better understanding, we also included the model performance on training and testing data measured by Mean Squared Error on the bottom"),
-                     #   actionButton("plot", h5(tags$strong("Generate trainig and testing data"))), 
+                column(2,
                        br(),
                        br(),
-                       conditionalPanel("input.plot != 0",
+                       br(),
+                       br(),
+                       conditionalPanel(#
+                         condition="input.plot != 0",
                                         
                                         # choose dependent variable from dataset
                                           selectInput(inputId = 'models',
-                                                      label = 'Choose a model for p-score',
+                                                      label = 'Choose a model',
                                                       choices = c('Logistic Regression', 'Random Forest', 'BART')),
                                           
                                         # If log reg is chosen, give option of profit or logit
-                                          uiOutput('log_model_option'),
+                                        uiOutput('log_model_option'),
                                         
                                         
                                        # Click fit model button to produce results
                                         actionButton("fit_model", h5(tags$strong("Fit Model"))),
                                         br(),
-                                        br()
+                                        br(),
                                         
-                       )
+                      )
                 ),
-                mainPanel(
+                 mainPanel(
                   # If log reg is chosen, give option of polynomial terms or interaction terms
-                  uiOutput("bucket"),
+                   div(style = "text-align: center",h3(tags$b("Please choose predictors"))),
+                   uiOutput("bucket"),
+                  width = 10,
+                  ),
                   
-                ))
+                )
               
               
       ),
@@ -110,9 +108,13 @@ dashboardPage(
                     width = 12,
 
                     h3(tags$p("Model Summary")),
-                    # verbatimTextOutput("model_summary"),
                     htmlOutput("model_name"),
-                    tableOutput('model_summary')
+                    tableOutput('model_summary')%>% withSpinner(color="#0dc5c1"),
+                    
+                    # Click clear button to go back to define model
+                    actionButton("clear", h5(tags$strong("Back to Define Model"))),
+                    br(),
+                    br()
 
 
 
