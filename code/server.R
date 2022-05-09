@@ -144,11 +144,6 @@ shinyServer(function(input, output,session) {
   ## Get model summary
   model_summary = eventReactive(input$fit_model, 
                                 { 
-                                  # # Create a Progress object
-                                  # progress = Progress$new()
-                                  # # Make sure it closes when we exit this reactive, even if there's an error
-                                  # on.exit(progress$close())
-                                  # progress$set(message = "Fitting Model", value = 0)
                                   
                                   ## Fit models
                                   if(input$models=='Logistic Regression'){
@@ -196,12 +191,7 @@ shinyServer(function(input, output,session) {
     updateTabItems(session, "tabs", "model")
   })
 
-  # ## Clear output after clicking clear button
-  # observeEvent(input$clear, {
-  #   output$model_name <- renderText({})
-  #   output$model_summary = renderText({})
-  # })
-  # 
+
 
 
   

@@ -34,18 +34,62 @@ dashboardPage(
     
     tabItems(
       tabItem(tabName = "intro",
-              h3(tags$b("What is Propensity Score? ")),
-              h4(tags$li("text: propensity score introduction")),
+              h2(tags$b(strong("What is Propensity Score Matching? "))),
+              h4(tags$li("In Casual Inference, Propensity Score Matching is 
+              a statistical matching technique that attempts to estimate the 
+              effect of a treatment by accounting for the covariates that 
+                         predict the reception of the treatment. ")),
               br(),
-              h4(strong("Understanding propensity score matching:")),
+              h2(strong("Why does researchers use Propensity Score Matching? ")),
+              h4(tags$li("Imagine you as a scientist who wants to understand
+                         the effect of a new diabete drug. You conduct an experiment
+                         in which you have patients in the Control group who take 
+                         a placebo pill, and patients in the Treatment group who
+                         take the new drug. You then measure the blood sugar of the 
+                         partients to see if the new drug lower the blood sugar level
+                         in the treatment group patients. ")),
+              h3(strong("In an ideal world, Random Assignment is Gold...")),
+              h4(tags$li("In an ideal world, you would be able to randomly assign 
+                         the patients to the control group and the treatment group.
+                         In this case, you could avoid selection bias. By randomly 
+                         assigning patientsto the Control and Treatment group, 
+                         you could also obtain an unbiased average treatment effect. 
+                         ")),
+              h3(strong("However, in reality...")),
+              h4(tags$li("In reality, you are not so lucky as you have to 
+                         comply with different research rules.  Therefore, you have to ask 
+                         patients to volunteerly join either the treatment group
+                         or the control group, but no one can join both at the same time. 
+                         Now you have different numbers of patients with different
+                         characteristics in the control group and the treatment group.")),
+              h4(tags$li("In addition, you want to have a balance dataset in order to 
+                          eliminate bias in your estimates. ")),
+              h2(strong("Propensity Score Matching As a Tool")),
+              h4(tags$li("One way to overcome the lack of random assignment is 
+                          using Propensity Score Matching. Using Propensity Score Matching, we could 
+                         create a model that could produce a score for each patients
+                         ")),
+              h4(tags$li('A propensity score is the probability of assigning treatment 
+                         to a participant conditional on observed baseline characteristics. ')),
+              h4(tags$li("Using Propensity Score Matching, we could create a 
+                          model that could produce a propensity score for each patients. 
+                          We then could match a patient in the Control group with a patient 
+                          with a similar propensity score but in the Treatment group together. 
+                          In this case, we could theoretically create a balanced dataset that 
+                          is closed to a observation study with random assignment method. 
+                         ")),
+              h2(tags$b(strong('"Propensity Score Matching sounds cool. Why not use it for every study? "'))),
+              h4(tags$li('One important factor that determine the success of propensity
+                         score matching is to use the correct propensity score matching
+                         model. However, when each propensity score model produce 
+                         a different result and we have not known the true effect of 
+                         the drug yet, it is difficult to say which model is the correct one. ')),
+              
               withMathJax(),
-              h4(tags$li("text: what is propensity score matching?")),
-              h4(tags$li("text: why propensity score matching could be counterintuitive? ")),
               br(),
-              br(),
-              h4(strong("What does this app do?")),
+              h2(strong("What does this app do?")),
               withMathJax(),
-              h4(tags$li("text: app function introduction")),
+              h4(tags$li("This app is to show you how Propensity Score Matching could be misused and produce inaccurate result. ")),
               h4(tags$li("1. Define Model: define your propensity score model ")),
               h4(tags$li("2. See Result: See the result ATE of your model and compare with the true ATE")),
               br(),
