@@ -2,6 +2,8 @@ library(shiny)
 library(shinydashboard)
 library(shinyBS)
 library(sortable)
+library(dplyr)
+library(shinycssloaders)
 
 dashboardPage(
   # skin="black",
@@ -108,7 +110,7 @@ dashboardPage(
                     width = 12,
 
                     h3(tags$p("Model Summary")),
-                    htmlOutput("model_name"),
+                    htmlOutput("model_name") %>% withSpinner(color="#0dc5c1"),
                     tableOutput('model_summary')%>% withSpinner(color="#0dc5c1"),
                     
                     # Click clear button to go back to define model

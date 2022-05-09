@@ -3,7 +3,7 @@ library(randomForest)
 library(randomForestExplainer)
 library(dplyr)
 library(shinycssloaders)
-library(BART)
+library(dbarts)
 
 ## Helper functions
 
@@ -42,7 +42,9 @@ fit_rf_model = function(model_formula, data){
   
 }
 
-
+fit_bart_model = function(model_formula, data){
+  return(summary(bart2(as.formula(model_formula), data = data)))
+}
 
 
 ## Server
@@ -130,7 +132,11 @@ shinyServer(function(input, output,session) {
       make_model_formula(predictors=  input$predictors, 
                          interact_terms = NULL, 
                          poly_terms = NULL, outcome = 'treat')
-    }else{NULL}
+    }else if(input$models == 'BART'){
+      make_model_formula(predictors=  input$predictors, 
+                         interact_terms = NULL, 
+                         poly_terms = NULL, outcome = 'treat')
+    }
 
   })
 
@@ -148,10 +154,10 @@ shinyServer(function(input, output,session) {
                                   if(input$models=='Logistic Regression'){
                                      fit_lr_model(model_formula(), data = data(), 
                                                   link = input$log_model_option)}
-                                     else if(input$models == 'Random Forest'){
-                                       fit_rf_model(model_formula(), data = data()) 
-
-                                      }
+                                  else if(input$models == 'Random Forest'){
+                                    fit_rf_model(model_formula(), data = data())}
+                                  else if(input$models == 'BART'){
+                                    fit_bart_model(model_formula(), data = data())}
   })
   
 
@@ -169,7 +175,10 @@ shinyServer(function(input, output,session) {
     else if(input$models == 'Random Forest'){
       model_type = 'Random Forest'
       HTML(paste(model, model_type,sep = '<br/>'))
-      
+    }
+    else if(input$models == 'BART'){
+      model_type = 'BART'
+      HTML(paste(model, model_type,sep = '<br/>'))
     }
 
     
@@ -178,7 +187,8 @@ shinyServer(function(input, output,session) {
   output$model_summary =
     renderTable({
       if(input$models=='Logistic Regression'){model_summary()$coefficients}
-      else if(input$models=='Random Forest'){model_summary()}}
+      else if(input$models=='Random Forest'){model_summary()}
+      else if(input$models == 'BART'){model_summary()}}
       , rownames = TRUE)
   
   ## Go to define model page after result
