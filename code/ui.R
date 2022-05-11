@@ -153,16 +153,18 @@ dashboardPage(
                   column(
                     width = 12,
 
-                    h3(tags$p("Model Summary")),
+                    h3(tags$p("Balance Plot")),
                     #htmlOutput("model_name") %>% withSpinner(color="#0dc5c1"),
                     #tableOutput('model_summary')%>% withSpinner(color="#0dc5c1"),
-                    plotOutput('balance_plot'),
+                    plotOutput('balance_plot')),
+                  column(
+                    width = 12,
+                    h3(tags$p("Overlap Plot")),
+                    plotOutput('overlap_plot'),
                     # Click clear button to go back to define model
                     actionButton("clear", h5(tags$strong("Back to Define Model"))),
                     br(),
                     br()
-
-
 
                   )
                 )

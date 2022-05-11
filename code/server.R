@@ -152,27 +152,39 @@ shinyServer(function(input, output,session) {
 
   })
 
-  pscore_weights = eventReactive(input$fit_model, {
+  
+  ps <- reactive({
     if(input$models=='Logistic Regression'){
       ps_model <- fit_lr_model(model_formula(), data = data, 
-                   link = input$log_model_option)}
+                               link = input$log_model_option)}
     
     ps <- predict(ps_model, type = 'response')
+    return(ps)
+  })
+  
+  
+  pscore_weights = eventReactive(input$fit_model, {
     
     if(input$matching_option == 'Nearest Neighbor with Replacement') {
-      matches <- arm::matching(z = data$treat, score = ps, replace = TRUE)
+      matches <- arm::matching(z = data$treat, score = ps(), replace = TRUE)
     }
     else {
-      matches <- arm::matching(z = data$treat, score = ps, replace = FALSE)
+      matches <- arm::matching(z = data$treat, score = ps(), replace = FALSE)
     }
     #save weights
     matched <- matches$cnts
     
     return(matched)
     
-    
-  }
-                                )
+  }  )
+  
+  output$att <- reactive({
+    lin_model <- lm(obsy_A ~ Z + X1 + X2 + X3 + X4 + X5, data = obsA, weights = matched_Aprob)
+    out_psA <- summary(lm1)
+    out_psA
+    A_ps_est <- out_psA$coefficients[2, 1]
+    A_ps_se <- out_psA$coefficients[2, 2]
+  })
   
   ## Get model summary
   model_summary = eventReactive(input$fit_model, 
@@ -222,7 +234,13 @@ shinyServer(function(input, output,session) {
   output$balance_plot <- renderPlot( {
     plot(balance(data %>% dplyr::select(input$predictors), data$treat, pscore_weights()))
   })
+  output$overlap_plot <- renderPlot( {
+    data$ps <- ps()
+    ggplot(data) + geom_histogram(aes(x = ps, color = factor(treat)), fill = 'white',
+                                  alpha = 0.3, bins = 20) + scale_color_manual(values=c("blue", "red"))
+  })
   
+
   
   ## Go to define model page after result
   observeEvent(input$clear, {
