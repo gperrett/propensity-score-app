@@ -4,6 +4,8 @@ library(randomForestExplainer)
 library(dplyr)
 library(shinycssloaders)
 library(dbarts)
+library(tidyverse)
+library(arm)
 
 ## Helper functions
 
@@ -33,8 +35,10 @@ make_model_formula = function(predictors, outcome, interact_terms=NULL, poly_ter
 }
 
 fit_lr_model = function(model_formula, link, data){
-  return(summary(glm(as.formula(model_formula), data = data, family = binomial(link = link))))
-}
+  model <- glm(as.formula(model_formula), data = data, family = binomial(link = link))
+  #return(summary(glm(as.formula(model_formula), data = data, family = binomial(link = link))))
+  return(model)
+ }
 
 fit_rf_model = function(model_formula, data){
   
@@ -51,10 +55,10 @@ fit_bart_model = function(model_formula, data){
 shinyServer(function(input, output,session) {
 
   ## Load dataset
-  data <- reactive({
+  data <- read.csv('~/Documents/propensity-score-app/data/simdata.csv')
     # read.csv(paste0(getwd(),'/data/simdata.csv'))
-    read.csv('~/Desktop/propensity-score-app/data/simdata.csv')
-  })
+    
+
   
   observeEvent(input$define_model, {
     updateTabItems(session, "tabs", "model")
@@ -68,6 +72,14 @@ shinyServer(function(input, output,session) {
                   choices =  c('logit','probit'))
       
     }else{NULL}})
+  
+  output$matching_option = renderUI({
+    selectInput(inputId = 'matching_option',
+                label = 'Choose a matching method: ',
+                choices = c('Nearest Neighbor with Replacement', 
+                            'Nearest Neighbor without Replacement',
+                            'IPTW'))
+  })
   
   ## If log reg: give option of using polynomial terms and interaction terms
   output$bucket = renderUI({
@@ -127,7 +139,7 @@ shinyServer(function(input, output,session) {
     if(input$models == 'Logistic Regression'){
       make_model_formula(predictors=  input$predictors, 
                          interact_terms = input$interactterm, 
-                         poly_terms = input$polyterm, outcome = 'treat')
+                         poly_terms = input$polyterm, outcome = 'factor(treat)')
     }else if(input$models == 'Random Forest'){
       make_model_formula(predictors=  input$predictors, 
                          interact_terms = NULL, 
@@ -140,6 +152,27 @@ shinyServer(function(input, output,session) {
 
   })
 
+  pscore_weights = eventReactive(input$fit_model, {
+    if(input$models=='Logistic Regression'){
+      ps_model <- fit_lr_model(model_formula(), data = data, 
+                   link = input$log_model_option)}
+    
+    ps <- predict(ps_model, type = 'response')
+    
+    if(input$matching_option == 'Nearest Neighbor with Replacement') {
+      matches <- arm::matching(z = data$treat, score = ps, replace = TRUE)
+    }
+    else {
+      matches <- arm::matching(z = data$treat, score = ps, replace = FALSE)
+    }
+    #save weights
+    matched <- matches$cnts
+    
+    return(matched)
+    
+    
+  }
+                                )
   
   ## Get model summary
   model_summary = eventReactive(input$fit_model, 
@@ -150,9 +183,9 @@ shinyServer(function(input, output,session) {
                                      fit_lr_model(model_formula(), data = data(), 
                                                   link = input$log_model_option)}
                                   else if(input$models == 'Random Forest'){
-                                    fit_rf_model(model_formula(), data = data())}
+                                    fit_rf_model(model_formula(), data = data)}
                                   else if(input$models == 'BART'){
-                                    fit_bart_model(model_formula(), data = data())}
+                                    fit_bart_model(model_formula(), data = data)}
   })
   
 
@@ -185,6 +218,11 @@ shinyServer(function(input, output,session) {
       else if(input$models=='Random Forest'){model_summary()}
       else if(input$models == 'BART'){model_summary()}}
       , rownames = TRUE)
+  
+  output$balance_plot <- renderPlot( {
+    plot(balance(data %>% dplyr::select(input$predictors), data$treat, pscore_weights()))
+  })
+  
   
   ## Go to define model page after result
   observeEvent(input$clear, {

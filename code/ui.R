@@ -124,12 +124,12 @@ dashboardPage(
                                           
                                         # If log reg is chosen, give option of profit or logit
                                         uiOutput('log_model_option'),
-                                        
+                                        uiOutput('matching_option'),
                                         
                                        # Click fit model button to produce results
                                         actionButton("fit_model", h5(tags$strong("Fit Model"))),
                                         br(),
-                                        br(),
+                                        br()
                                         
                       )
                 ),
@@ -154,9 +154,9 @@ dashboardPage(
                     width = 12,
 
                     h3(tags$p("Model Summary")),
-                    htmlOutput("model_name") %>% withSpinner(color="#0dc5c1"),
-                    tableOutput('model_summary')%>% withSpinner(color="#0dc5c1"),
-                    
+                    #htmlOutput("model_name") %>% withSpinner(color="#0dc5c1"),
+                    #tableOutput('model_summary')%>% withSpinner(color="#0dc5c1"),
+                    plotOutput('balance_plot'),
                     # Click clear button to go back to define model
                     actionButton("clear", h5(tags$strong("Back to Define Model"))),
                     br(),
