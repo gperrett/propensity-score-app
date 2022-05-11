@@ -137,7 +137,7 @@ dashboardPage(
                   # If log reg is chosen, give option of polynomial terms or interaction terms
                    div(style = "text-align: center",h3(tags$b("Please choose predictors"))),
                    uiOutput("bucket"),
-                  width = 10,
+                  width = 10
                   ),
                   
                 )
@@ -162,10 +162,17 @@ dashboardPage(
                     h3(tags$p("Overlap Plot")),
                     plotOutput('overlap_plot'),
                     # Click clear button to go back to define model
+                    #actionButton("clear", h5(tags$strong("Back to Define Model"))),
+                    br(),
+                    br() ),
+                  column(
+                    width = 12,
+                    h3(tags$p("ATT Plot")),
+                    plotOutput('att_plot'),
+                    # Click clear button to go back to define model
                     actionButton("clear", h5(tags$strong("Back to Define Model"))),
                     br(),
                     br()
-
                   )
                 )
               )

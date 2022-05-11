@@ -55,7 +55,7 @@ fit_bart_model = function(model_formula, data){
 shinyServer(function(input, output,session) {
 
   ## Load dataset
-  data <- read.csv('~/Documents/propensity-score-app/data/simdata.csv')
+  data <- read.csv('~/Documents/propensity-score-app/data/simwoutcome.csv')
     # read.csv(paste0(getwd(),'/data/simdata.csv'))
     
 
@@ -163,7 +163,7 @@ shinyServer(function(input, output,session) {
   })
   
   
-  pscore_weights = eventReactive(input$fit_model, {
+  pscore_weights <- eventReactive(input$fit_model, {
     
     if(input$matching_option == 'Nearest Neighbor with Replacement') {
       matches <- arm::matching(z = data$treat, score = ps(), replace = TRUE)
@@ -178,12 +178,15 @@ shinyServer(function(input, output,session) {
     
   }  )
   
-  output$att <- reactive({
-    lin_model <- lm(obsy_A ~ Z + X1 + X2 + X3 + X4 + X5, data = obsA, weights = matched_Aprob)
-    out_psA <- summary(lm1)
-    out_psA
-    A_ps_est <- out_psA$coefficients[2, 1]
-    A_ps_se <- out_psA$coefficients[2, 2]
+  att <- reactive({
+    covars <- print(paste0(input$predictors, collapse = '+'))
+    m.formula <- paste0('YC ~ treat + ', paste0(input$predictors, collapse = '+'))
+    print(m.formula)
+    lin_model <- lm(as.formula(m.formula), data = data, weights = pscore_weights())
+    out_ps <- summary(lin_model)
+    print(out_ps)
+    att_est <- out_ps$coefficients[2, 1]
+    return(att_est)
   })
   
   ## Get model summary
@@ -240,6 +243,26 @@ shinyServer(function(input, output,session) {
                                   alpha = 0.3, bins = 20) + scale_color_manual(values=c("blue", "red"))
   })
   
+  output$att_plot <- renderPlot({
+    print(att())
+    if (att() < 0) {
+      x = seq(att()-5, 5, .5)
+    }
+    else {
+      x = seq(-5, att() + 5, .5)
+    }
+    ggplot(x = x, y = seq(0, 1, .1)) + 
+      geom_vline(aes(xintercept = 0, colour = 'red')) + 
+      geom_vline(xintercept = att(), linetype = 'dashed') +
+      #scale_x_continuous(breaks=seq(0,1,.05), limits = c(-.01, 1.01), expand = expansion()) + 
+      #scale_y_continuous(labels = NULL, breaks = NULL) + 
+      labs(y = "", x = 'Average Treatment Effect (ATT)') + 
+      theme_classic() + 
+      theme(axis.line.y=element_blank(),
+            axis.text.y=element_blank(),
+            axis.title.y=element_blank(),
+            axis.ticks.y=element_blank())
+  })
 
   
   ## Go to define model page after result
