@@ -167,6 +167,7 @@ dashboardPage(
                     br() ),
                   column(
                     width = 12,
+                    textOutput('att_info'),
                     h3(tags$p("ATT Plot")),
                     plotOutput('att_plot'),
                     # Click clear button to go back to define model

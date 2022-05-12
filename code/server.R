@@ -42,12 +42,12 @@ fit_lr_model = function(model_formula, link, data){
 
 fit_rf_model = function(model_formula, data){
   
-  return(measure_importance(randomForest(as.formula(model_formula), data = data)))
+  return(randomForest(as.formula(model_formula), data = data))
   
 }
 
 fit_bart_model = function(model_formula, data){
-  return(summary(bart2(as.formula(model_formula), data = data)))
+  return(bart2(as.formula(model_formula), keepTrees = TRUE, data = data))
 }
 
 
@@ -122,18 +122,28 @@ shinyServer(function(input, output,session) {
         input_id = 'variables'
       ),
       add_rank_list(
-        text = "Predictor(s)",
+        text = "`Predictor(s)",
         labels = NULL,
         input_id = 'predictors'
       ))}})
   
+  #observeEvent(input$fit_model, {
+  #  if(length(input$predictors == 0)) {
+  #    show_alert(title = 'Predictors Error', 
+ #                text = 'You must select at least 1 predictor variable', 
+ #                type = 'error')
+ #   }
+#  })
   
   ## Go to result page after fitting model
   observeEvent(input$fit_model, {
+    req(length(input$predictors >= 1))
     updateTabItems(session, "tabs", "result")
+    print(length(input$predictors))
   })
   
-  
+
+    
   ## Fit model
   model_formula = eventReactive(input$fit_model, {
     if(input$models == 'Logistic Regression'){
@@ -156,9 +166,20 @@ shinyServer(function(input, output,session) {
   ps <- reactive({
     if(input$models=='Logistic Regression'){
       ps_model <- fit_lr_model(model_formula(), data = data, 
-                               link = input$log_model_option)}
-    
-    ps <- predict(ps_model, type = 'response')
+                               link = input$log_model_option)
+      ps <- predict(ps_model, type = 'response')
+      }
+    else if (input$models == 'Random Forest') {
+      ps_model <- fit_rf_model(model_formula(), data = data)
+      ps <- predict(ps_model, type = 'response')
+    }
+    else {
+      ##how to get propensoty score from bart ??
+      print(model_formula())
+      ps_model <- fit_bart_model(model_formula(),  data = data)
+      ps <- predict(ps_model, data, type= 'ev')
+    }
+  
     return(ps)
   })
   
@@ -167,24 +188,27 @@ shinyServer(function(input, output,session) {
     
     if(input$matching_option == 'Nearest Neighbor with Replacement') {
       matches <- arm::matching(z = data$treat, score = ps(), replace = TRUE)
+      weights <- matches$cnts
     }
-    else {
+    else if (input$matching_option == 'Nearest Neighbor without Replacement'){
       matches <- arm::matching(z = data$treat, score = ps(), replace = FALSE)
+      weights <- matches$cnts
+    }
+    else{
+      ##iptw
+      weights <- if_else(data$treat == 1, 1, ps()/(1-ps()))
     }
     #save weights
-    matched <- matches$cnts
     
-    return(matched)
+    return(weights)
     
   }  )
   
   att <- reactive({
     covars <- print(paste0(input$predictors, collapse = '+'))
     m.formula <- paste0('YC ~ treat + ', paste0(input$predictors, collapse = '+'))
-    print(m.formula)
     lin_model <- lm(as.formula(m.formula), data = data, weights = pscore_weights())
     out_ps <- summary(lin_model)
-    print(out_ps)
     att_est <- out_ps$coefficients[2, 1]
     return(att_est)
   })
@@ -242,6 +266,9 @@ shinyServer(function(input, output,session) {
     ggplot(data) + geom_histogram(aes(x = ps, color = factor(treat)), fill = 'white',
                                   alpha = 0.3, bins = 20) + scale_color_manual(values=c("blue", "red"))
   })
+  output$att_info <- renderText({
+    print(paste0('The ATT is: ', att()))
+  })
   
   output$att_plot <- renderPlot({
     print(att())
@@ -252,11 +279,11 @@ shinyServer(function(input, output,session) {
       x = seq(-5, att() + 5, .5)
     }
     ggplot(x = x, y = seq(0, 1, .1)) + 
-      geom_vline(aes(xintercept = 0, colour = 'red')) + 
+      geom_vline(aes(xintercept = 0, colour = 'true_att')) + 
       geom_vline(xintercept = att(), linetype = 'dashed') +
       #scale_x_continuous(breaks=seq(0,1,.05), limits = c(-.01, 1.01), expand = expansion()) + 
       #scale_y_continuous(labels = NULL, breaks = NULL) + 
-      labs(y = "", x = 'Average Treatment Effect (ATT)') + 
+      labs(y = "", x = 'Average Treatment Effect on Treated (ATT)') + 
       theme_classic() + 
       theme(axis.line.y=element_blank(),
             axis.text.y=element_blank(),
