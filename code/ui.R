@@ -122,9 +122,11 @@ dashboardPage(
                                                       label = 'Choose a model',
                                                       choices = c('Logistic Regression', 'Random Forest', 'BART')),
                                           
-                                        # If log reg is chosen, give option of profit or logit
+                                        # If log reg is chosen, give link function options and interaction term option
+                                        # Give matching option for all
                                         uiOutput('log_model_option'),
                                         uiOutput('matching_option'),
+                                        uiOutput('interx_option'),
                                         
                                        # Click fit model button to produce results
                                         actionButton("fit_model", h5(tags$strong("Fit Model"))),
@@ -137,6 +139,7 @@ dashboardPage(
                   # If log reg is chosen, give option of polynomial terms or interaction terms
                    div(style = "text-align: center",h3(tags$b("Please choose predictors"))),
                    uiOutput("bucket"),
+
                   width = 10
                   ),
                   
@@ -152,24 +155,24 @@ dashboardPage(
                   tags$b("Result"),
                   column(
                     width = 12,
-
+                    h3(tags$p("Propensity Score Model")),
+                    htmlOutput("model_name"),
+                    
+                    br(),
                     h3(tags$p("Balance Plot")),
-                    #htmlOutput("model_name") %>% withSpinner(color="#0dc5c1"),
-                    #tableOutput('model_summary')%>% withSpinner(color="#0dc5c1"),
-                    plotOutput('balance_plot')),
+                    plotOutput('balance_plot')%>% withSpinner(color="#0dc5c1")),
                   column(
                     width = 12,
                     h3(tags$p("Overlap Plot")),
-                    plotOutput('overlap_plot'),
-                    # Click clear button to go back to define model
-                    #actionButton("clear", h5(tags$strong("Back to Define Model"))),
+                    plotOutput('overlap_plot')%>% withSpinner(color="#0dc5c1"),
+
                     br(),
                     br() ),
                   column(
                     width = 12,
                     textOutput('att_info'),
                     h3(tags$p("ATT Plot")),
-                    plotOutput('att_plot'),
+                    plotOutput('att_plot')%>% withSpinner(color="#0dc5c1"),
                     # Click clear button to go back to define model
                     actionButton("clear", h5(tags$strong("Back to Define Model"))),
                     br(),

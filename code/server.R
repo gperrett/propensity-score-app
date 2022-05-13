@@ -9,28 +9,55 @@ library(arm)
 
 ## Helper functions
 
+### Make a list of interaction terms to choose from
+make_interx_terms = function(var1, var2){
+  # return(paste0(c(var1, var2),collapse = '*'))
+  return(paste0(var1, '*', var2))
+  }
+
+create_interx_list = function(data){
+  # varbs = names(data)[!(names(data) %in% c('treat', "...1",      "X"))]
+  varbs = c("bw", "b.head","preterm","birth.o","nnhealth", "momage",
+            "sex","twin","b.marr","mom.lths","mom.hs","mom.scoll", "cig",
+            "first","booze","drugs","work.dur","prenatal","ark","ein",
+            "har","mia","pen","tex","was","momwhite","momblack","momhisp"
+            )
+  interx_list = crossing(varbs, varbs)
+  interx_list = interx_list[which(interx_list[1]!=interx_list[2]),]
+  interx_list = mapply(make_interx_terms, interx_list[1],interx_list[2])
+  interx_list = c('None', interx_list)
+  return(interx_list)
+}
+
+### Make poly terms
 make_poly_terms = function(predictors){
   if (length(predictors>0)){return(paste0('I(', predictors,'^2)'))}
 }
 
-make_interx_terms = function(predictors){
-  if (length(predictors > 0)){
-    if ((length(predictors) < 2) ){
-      stop('Error: need at least 2 predictors for interactive terms')
-    }else(return(paste0(predictors,collapse = '*')))
-  }
-}
+# make_interx_terms = function(predictors){
+#   if (length(predictors > 0)){
+#     if ((length(predictors) < 2) ){
+#       stop('Error: need at least 2 predictors for interactive terms')
+#     }else(return(paste0(predictors,collapse = '*')))
+#   }
+# }
 
 make_model_formula = function(predictors, outcome, interact_terms=NULL, poly_terms=NULL){
+  
+  if('None' %in% interact_terms){
+    interact_terms = NULL
+  }
 
   if (!is.null(interact_terms)){
-    interact = make_interx_terms(interact_terms)
-    predictors = c(predictors, interact)
+    # interact = make_interx_terms(interact_terms)
+    # predictors = c(predictors, interact)
+    predictors = c(predictors, interact_terms)
   }
   if (!is.null(poly_terms)){
     poly = make_poly_terms(poly_terms)
     predictors = c(predictors, poly)
   }
+  print(paste0(outcome, '~', paste0(predictors, collapse = '+')))
   return(paste0(outcome, '~', paste0(predictors, collapse = '+')))
 }
 
@@ -55,7 +82,8 @@ fit_bart_model = function(model_formula, data){
 shinyServer(function(input, output,session) {
 
   ## Load dataset
-  data <- read.csv('~/Documents/propensity-score-app/data/simwoutcome.csv')
+  # data <- read.csv('~/Documents/propensity-score-app/data/simwoutcome.csv')
+  data = read.csv('~/Desktop/propensity-score-app/data/simwoutcome.csv')
     # read.csv(paste0(getwd(),'/data/simdata.csv'))
     
 
@@ -104,11 +132,11 @@ shinyServer(function(input, output,session) {
           labels = NULL,
           input_id = 'polyterm'
         ),
-        add_rank_list(
-          text = "Interaction Term(s)",
-          labels = NULL,
-          input_id = 'interactterm'
-        )
+        # add_rank_list(
+        #   text = "Interaction Term(s)",
+        #   labels = NULL,
+        #   input_id = 'interactterm'
+        # )
       )
       
     }else{bucket_list(
@@ -126,6 +154,19 @@ shinyServer(function(input, output,session) {
         labels = NULL,
         input_id = 'predictors'
       ))}})
+  
+  
+  ## If log reg: give option of using interaction terms as a dropdown list
+  interx_options = reactive({create_interx_list(data())})
+  output$interx_option = renderUI({
+    if(input$models == 'Logistic Regression'){
+      selectInput(inputId = 'interactterm',
+                  label = 'Choose interactions',
+                  choices =  interx_options(), 
+                  multiple = TRUE)
+      
+    }else{NULL}})
+  
   
   #observeEvent(input$fit_model, {
   #  if(length(input$predictors == 0)) {
