@@ -301,7 +301,7 @@ shinyServer(function(input, output,session) {
     }
     covars <- str_split(model_formula(), '~')[[1]][2]
     print(covars)
-    newLine <- data.frame(as.integer(store$number_of_models, digits = 0), model_type, covars, input$matching_option, round(att(), digits = 5))
+    newLine <- data.frame(as.integer(store$number_of_models, digits = 0), model_type, covars, input$matching_option, format(round(att(),8),nsmall=8))
     names(newLine) <- c("Number", "Model", "Variables", "Matching", "ATT")
     store$df <- rbind(store$df, newLine)
     return(store$df)
@@ -324,7 +324,7 @@ shinyServer(function(input, output,session) {
     req(ps())
     data$ps <- ps()
     ggplot(data) + geom_histogram(aes(x = ps, color = factor(treat)), fill = 'white',
-                                  alpha = 0.3, bins = 20) + scale_color_manual(values=c("blue", "red"))
+                                  alpha = 0.3, bins = 20) + scale_color_manual(values=c("blue", "red")) + labs(color = 'Treatment Group')
   })
   
   ## ATT
@@ -344,7 +344,7 @@ shinyServer(function(input, output,session) {
     }
     ggplot(x = x, y = seq(0, 1, .1)) + 
       geom_vline(aes(xintercept = 0, colour = 'True ATT')) + 
-      geom_vline(aes(xintercept = newEntry()$ATT, group = factor(newEntry()$Number), colour = factor(newEntry()$Number)), linetype = 'dashed') + 
+      geom_vline(aes(xintercept = as.numeric(newEntry()$ATT), group = factor(newEntry()$Number), colour = factor(newEntry()$Number)), linetype = 'dashed') + 
       #scale_x_continuous(breaks=seq(0,1,.05), limits = c(-.01, 1.01), expand = expansion()) + 
       #scale_y_continuous(labels = NULL, breaks = NULL) + 
       labs(y = "", x = 'Average Treatment Effect on Treated (ATT)', colour = "Model Number") + 
