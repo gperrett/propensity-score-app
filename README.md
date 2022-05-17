@@ -24,8 +24,8 @@ We created various different prototype designs for how to structure this applica
 
 Our next steps in improving this application are:
 * 1. Conduct user research
-  *  We want our users to provide feedbacks after using our application so we can improve it. To collect feedbacks, we will recruit 100 users to use our application, and ask them to provide us with their experience of using the application afterward. In addition to user experience, we also want to know if the application helps our users learn. Thereofre, all recruited users would be asked to complete a quiz after using the application. 
-  *   In the future, to coninously obtain user feedbacks, we will build a feedback page on our application and allow users to submit feedbacks online. 
+  *  We want our users to provide feedback after using our application so we can improve it. To collect feedback, we will recruit users from a causal inference class to use our application, and ask them to provide us with their experience of using the application afterward. In addition to user experience, we also want to know if the application helps our users learn. Therefore, all recruited users would be asked to complete a quiz after using the application. 
+  *   In the future, to coninously obtain user feedbacks, we will build a feedback page on our application and allow users to submit feedback online. 
 * 2. Establish cloud access
   *  Currently, our application runs locally. A user cannot access the application without downloading the source code. Deploying our application to the cloud allows users to use our application anytime at anywhere, which could improve user experience. 
 * 3. More options for polynomial terms
