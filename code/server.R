@@ -301,7 +301,7 @@ shinyServer(function(input, output,session) {
     }
     covars <- str_split(model_formula(), '~')[[1]][2]
     print(covars)
-    newLine <- data.frame(store$number_of_models, model_type, covars, input$matching_option, att())
+    newLine <- data.frame(as.integer(store$number_of_models, digits = 0), model_type, covars, input$matching_option, round(att(), digits = 5))
     names(newLine) <- c("Number", "Model", "Variables", "Matching", "ATT")
     store$df <- rbind(store$df, newLine)
     return(store$df)

@@ -18,7 +18,7 @@ dashboardPage(
       id = "tabs",
       menuItem("Introduction",tabName = "intro",icon = icon("book")),
       menuItem("Define Model", tabName = "model", icon = icon("dashboard")),
-      menuItem("PS Result", tabName = "ps_result", icon = icon("wpexplorer")),
+      menuItem("Check Overlap + Balance", tabName = "ps_result", icon = icon("wpexplorer")),
       menuItem("ATT Result", tabName = "att_result", icon = icon("wpexplorer"))
       
     )),
@@ -41,29 +41,31 @@ dashboardPage(
               a statistical matching technique that attempts to estimate the 
               effect of a treatment by accounting for the covariates that 
                          predict the reception of the treatment. ")),
-              h2(tags$b(strong('Problem in Propensity Score Matching'))),
-              h4(tags$li('One important factor that determine the success of propensity
-                         score matching is to use the correct propensity score matching
-                         model. However, when each propensity score model produce 
-                         a different result and we have not known the true effect of 
-                         the drug yet, it is difficult to say which model is the correct one. ')),
+              h2(tags$b(strong('The Problem With Propensity Score Matching'))),
+              h4(tags$li('The main challenge with propensity score matching is due to researcher degrees of freedom.
+                         The choice of model inputs allows for a lot of subjectivity in
+                         how a propensity score model is defined and specified. This subjectivity has a direct influence on 
+                         the results of propensity score matching. Each different model specification can lead to drastically
+                         different treatment effect estimates. The question is: how bad can it be?')),
               
               withMathJax(),
               br(),
               h2(strong("What does this app do?")),
               withMathJax(),
-              h4(tags$li("This app is to show you how Propensity Score Matching could be misused and produce inaccurate result. ")),
-              h4(tags$li("In this example, we are using stimulated data to understand how high quality child care could affect acadeic outcome.
-                         In our example, the average treatment effect on the treated (ATT) is 0. However, based on the propensity score matching model you choose, 
-                         you could get different result than the true ATT. ")),
+              h4(tags$li("This app is to show you how Propensity Score Matching can be misused and produce inaccurate results.")),
+              h4(tags$li("In this example, we use the IHDP dataset, which is data resulting from an observational study, to examine how high quality 
+              child care could impact children's test scores in elementary school. We have simulated the outcome of test scores, such that the average treatment 
+              effect on the treated (ATT) is 0. However, based on the propensity score matching model you choose, you could get many varying results that are not the true ATT.")),
+              h4(tags$li("There are 3 main tabs:")),
               h4(tags$li("1. Define Model: define your propensity score model ")),
-              h4(tags$li("2. See Result: See the result ATE of your model and compare with the true ATE")),
+              h4(tags$li("2. Check the balance and overlap from your specified model and matching method.")),
+              h4(tags$li("3. View Results: View the resulting estimated ATT along with the true ATT and past model estimations.")),
               br(),
               
               div(style = "text-align: center",bsButton("define_model", "Let's Have Some Fun!", icon("bolt"), size = "large")),
               br(),
               h4(tags$b("Acknowledgements:")),
-              h5("This app was developed by George, Prianca, and Daisy. 
+              h5("This app was developed by Prianca and Daisy, with guidance from George. 
                  Special thanks to Jinglin Feng and Alex Chen, who 
                  designed the original skeleton of this app in their 
                  overfitting app at BOAST."),
@@ -118,7 +120,7 @@ dashboardPage(
               fluidRow(
                 column(
                   width = 12,
-                  h2(tags$b(strong("Propensity Score Matching Result"))),
+                  h2(tags$b(strong("Check Overlap and Balance from Propensity Score Matching"))),
                   column(
                     width = 12,
                     h3(tags$p("Propensity Score Model")),
