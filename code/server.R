@@ -76,12 +76,16 @@ shinyServer(function(input, output,session) {
   data <- read.csv('~/Documents/propensity-score-app/data/simwoutcome.csv')
   #data = read.csv('~/Desktop/propensity-score-app/data/simwoutcome.csv')
     # read.csv(paste0(getwd(),'/data/simdata.csv'))
-    
+  
+  #reactive values storage for dataframe with all models
   store <- reactiveValues()
+  #placeholder dataframe
   store$df <- data.frame(Number = integer(), Model = character(), Variables = character(),
                          Matching = character(), ATT = numeric())
+  #keep track of number of models a user builds
   store$number_of_models <- 0
   
+  #update tabs if button is clicked
   observeEvent(input$define_model, {
     updateTabItems(session, "tabs", "model")
   })
@@ -175,11 +179,18 @@ shinyServer(function(input, output,session) {
     }
   })
   
-
-  
-  ## Go to result page after fitting model
+  #make sure at least 1 predictor is selected
   observeEvent(input$fit_model, {
-    req(length(input$predictors >= 1))
+    if(length(predictors()) < 1){
+      show_alert(title = 'Predictors Error', 
+                 text = 'Please select at least 1 predictor', 
+                 type = 'error')
+    }
+  })
+  
+  ## Go to result page after fitting model if at least 1 predictor is selected
+  observeEvent(input$fit_model, {
+    req(length(predictors()) >= 1)
     store$number_of_models <- store$number_of_models+ 1
     updateTabItems(session, "tabs", "ps_result")
   })
@@ -188,7 +199,7 @@ shinyServer(function(input, output,session) {
     
   ## Fit model
   model_formula = eventReactive(input$fit_model, {
-
+    req(length(predictors()) >= 1)
     if(input$models == 'Logistic Regression'){
       make_model_formula(predictors= input$predictors, 
                                interact_terms = input$interactterm, 
@@ -209,9 +220,8 @@ shinyServer(function(input, output,session) {
   
   
 
-  ## Propensity scores
+  ## Propensity scores fit
   ps <- reactive({
-    req(input$log_model_option)
     if(input$models=='Logistic Regression'){
       ps_model <- fit_lr_model(model_formula(), data = data, 
                                link = input$log_model_option)
@@ -222,7 +232,7 @@ shinyServer(function(input, output,session) {
       ps <- predict(ps_model, type = 'response')
     }
     else {
-      ##how to get propensoty score from bart ??
+      ##get propensity score from bart
       print(model_formula())
       ps_model <- fit_bart_model(model_formula(),  data = data)
       ps <- fitted(ps_model)
@@ -231,9 +241,9 @@ shinyServer(function(input, output,session) {
     return(ps)
   })
   
-  ## Propensity Score Weights
+  ## Propensity Score Weights from chosen matching method 
   pscore_weights <- eventReactive(input$fit_model, {
-    
+    req(length(predictors()) >= 1)
     if(input$matching_option == 'Nearest Neighbor with Replacement') {
       matches <- arm::matching(z = data$treat, score = ps(), replace = TRUE)
       weights <- matches$cnts
@@ -252,10 +262,8 @@ shinyServer(function(input, output,session) {
     
   }  )
   
-  ## ATT
+  ## ATT calculation using reactive weights 
   att <- reactive({
-    # covars <- print(paste0(input$predictors, collapse = '+'))
-    # m.formula <- paste0('YC ~ treat + ', paste0(input$predictors, collapse = '+'))
     m.formula =  paste0('YC ~', paste0(names(data %>% dplyr::select(-YC)), collapse = '+'))
     lin_model <- lm(as.formula(m.formula), data = data, weights = pscore_weights())
     out_ps <- summary(lin_model)
@@ -286,7 +294,10 @@ shinyServer(function(input, output,session) {
     
   })
   
+  #update reactive dataframe with model fit info whenever button is clicked 
+  #if at least 1 predictor is selected
   newEntry <- eventReactive(input$fit_model, {
+    req(length(predictors()) >= 1)
     model_type = c()
     if(input$models == 'Logistic Regression'){
       model_type = 'Logistic Regression'
@@ -299,14 +310,16 @@ shinyServer(function(input, output,session) {
     else {
       model_type = 'BART'
     }
+    #dont include treatment var in list of predictors 
     covars <- str_split(model_formula(), '~')[[1]][2]
-    print(covars)
+    #save line of new model information as data frame and rbind with reactive df
     newLine <- data.frame(as.integer(store$number_of_models, digits = 0), model_type, covars, input$matching_option, format(round(att(),8),nsmall=8))
     names(newLine) <- c("Number", "Model", "Variables", "Matching", "ATT")
     store$df <- rbind(store$df, newLine)
     return(store$df)
   })
   
+  #print reactive df 
   output$modelTable = renderTable({
     return(newEntry())
   })
@@ -334,6 +347,7 @@ shinyServer(function(input, output,session) {
     
   })
   
+  #plot true att (value = 0), as well as all previous atts from user's models 
   output$att_plot <- renderPlot({
     # print(att())
     if (att() < 0) {
@@ -344,6 +358,7 @@ shinyServer(function(input, output,session) {
     }
     ggplot(x = x, y = seq(0, 1, .1)) + 
       geom_vline(aes(xintercept = 0, colour = 'True ATT')) + 
+      #plot all saved ATT values including new one
       geom_vline(aes(xintercept = as.numeric(newEntry()$ATT), group = factor(newEntry()$Number), colour = factor(newEntry()$Number)), linetype = 'dashed') + 
       #scale_x_continuous(breaks=seq(0,1,.05), limits = c(-.01, 1.01), expand = expansion()) + 
       #scale_y_continuous(labels = NULL, breaks = NULL) + 
@@ -366,7 +381,7 @@ shinyServer(function(input, output,session) {
     updateTabItems(session, "tabs", "model")
   })
 
-  ## Go to define model page after result
+  ## Go to define model page after result and clear history of models from dataframe to start fresh
   observeEvent(input$clear, {
     store$df <- data.frame(Number = integer(), Model = character(), Variables = character(),
                            Matching = character(), ATT = numeric())

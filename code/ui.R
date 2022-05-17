@@ -120,6 +120,7 @@ dashboardPage(
               fluidRow(
                 column(
                   width = 12,
+                  #overlap and balance tab
                   h2(tags$b(strong("Check Overlap and Balance from Propensity Score Matching"))),
                   column(
                     width = 12,
@@ -130,7 +131,7 @@ dashboardPage(
                                  }"
                       )
                     ),
-                    
+                    #show the plots 
                     br(),
                     h3(tags$p("Balance Plot")),
                     plotOutput('balance_plot')%>% withSpinner(color="#0dc5c1")),
@@ -144,7 +145,7 @@ dashboardPage(
                   column(
                     width = 12,
                     
-                    # Click clear button to go back to define model
+                    # Click att button to go to att results page 
                     actionButton("see_att", h5(tags$strong("See ATT Result"))),
                     br(),
                     br()
@@ -154,6 +155,7 @@ dashboardPage(
               
               
       ),
+      #att results tab
       tabItem(tabName = "att_result",
               fluidRow(
                 column(
@@ -164,17 +166,18 @@ dashboardPage(
                                font-size: 20px;
                                }"
                   )),
-
+                  #show att plot as well as model table 
                   h3(tags$p("ATT Plot")),
                   plotOutput('att_plot')%>% withSpinner(color="#0dc5c1")),
                 column(
                   width = 12,
                   h3(tags$p("Model Table")),
                   tableOutput('modelTable')%>% withSpinner(color="#0dc5c1"),
-                  # Click back button to go back to define model
+                  # Click back button to go back to model specification page
                   actionButton("back", h5(tags$strong("Define Another Model"))),
                   br(),
                   br(),
+                  #button to clear history of models and start fresh 
                   actionButton("clear", h5(tags$strong("Clear All Models"))),
                   br(),
                   br()
