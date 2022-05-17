@@ -164,12 +164,19 @@ dashboardPage(
                   )),
 
                   h3(tags$p("ATT Plot")),
-                  plotOutput('att_plot')%>% withSpinner(color="#0dc5c1"),
-                  
-                  # Click clear button to go back to define model
-                  actionButton("clear", h5(tags$strong("Back to Define Model"))),
+                  plotOutput('att_plot')%>% withSpinner(color="#0dc5c1")),
+                column(
+                  width = 12,
+                  h3(tags$p("Model Table")),
+                  tableOutput('modelTable')%>% withSpinner(color="#0dc5c1"),
+                  # Click back button to go back to define model
+                  actionButton("back", h5(tags$strong("Define Another Model"))),
+                  br(),
+                  br(),
+                  actionButton("clear", h5(tags$strong("Clear All Models"))),
                   br(),
                   br()
+                  
                 )
 
                 )

@@ -7,6 +7,7 @@ library(dbarts)
 library(tidyverse)
 library(arm)
 library(stringr)
+library(ggrepel)
 
 ## Helper functions
 
@@ -64,7 +65,7 @@ fit_rf_model = function(model_formula, data){
 
 ## Fit BART model as propensity score model
 fit_bart_model = function(model_formula, data){
-  return(bart2(as.formula(model_formula), keepTrees = TRUE, data = data))
+  return(bart2(as.formula(model_formula), data = data, combineChains = TRUE))
 }
 
 
@@ -72,11 +73,14 @@ fit_bart_model = function(model_formula, data){
 shinyServer(function(input, output,session) {
 
   ## Load dataset
-  # data <- read.csv('~/Documents/propensity-score-app/data/simwoutcome.csv')
-  data = read.csv('~/Desktop/propensity-score-app/data/simwoutcome.csv')
+  data <- read.csv('~/Documents/propensity-score-app/data/simwoutcome.csv')
+  #data = read.csv('~/Desktop/propensity-score-app/data/simwoutcome.csv')
     # read.csv(paste0(getwd(),'/data/simdata.csv'))
     
-
+  store <- reactiveValues()
+  store$df <- data.frame(Number = integer(), Model = character(), Variables = character(),
+                         Matching = character(), ATT = numeric())
+  store$number_of_models <- 0
   
   observeEvent(input$define_model, {
     updateTabItems(session, "tabs", "model")
@@ -176,6 +180,7 @@ shinyServer(function(input, output,session) {
   ## Go to result page after fitting model
   observeEvent(input$fit_model, {
     req(length(input$predictors >= 1))
+    store$number_of_models <- store$number_of_models+ 1
     updateTabItems(session, "tabs", "ps_result")
   })
   
@@ -220,7 +225,7 @@ shinyServer(function(input, output,session) {
       ##how to get propensoty score from bart ??
       print(model_formula())
       ps_model <- fit_bart_model(model_formula(),  data = data)
-      ps <- predict(ps_model, data, type= 'ev')
+      ps <- fitted(ps_model)
     }
   
     return(ps)
@@ -250,12 +255,12 @@ shinyServer(function(input, output,session) {
   ## ATT
   att <- reactive({
     # covars <- print(paste0(input$predictors, collapse = '+'))
-    covars <- print(paste0(predictors(), collapse = '+'))
     # m.formula <- paste0('YC ~ treat + ', paste0(input$predictors, collapse = '+'))
     m.formula =  paste0('YC ~', paste0(names(data %>% dplyr::select(-YC)), collapse = '+'))
     lin_model <- lm(as.formula(m.formula), data = data, weights = pscore_weights())
     out_ps <- summary(lin_model)
     att_est <- out_ps$coefficients[2, 1]
+    print(att_est)
     return(att_est)
   })
   
@@ -281,6 +286,30 @@ shinyServer(function(input, output,session) {
     
   })
   
+  newEntry <- eventReactive(input$fit_model, {
+    model_type = c()
+    if(input$models == 'Logistic Regression'){
+      model_type = 'Logistic Regression'
+      link_func = input$log_model_option
+      model_type <- paste(model_type, link_func, sep = ' - ')
+    }
+    else if(input$models == 'Random Forest'){
+      model_type = 'Random Forest'
+    }
+    else {
+      model_type = 'BART'
+    }
+    covars <- str_split(model_formula(), '~')[[1]][2]
+    print(covars)
+    newLine <- data.frame(store$number_of_models, model_type, covars, input$matching_option, att())
+    names(newLine) <- c("Number", "Model", "Variables", "Matching", "ATT")
+    store$df <- rbind(store$df, newLine)
+    return(store$df)
+  })
+  
+  output$modelTable = renderTable({
+    return(newEntry())
+  })
 
   
   ## Balance Plot
@@ -314,11 +343,11 @@ shinyServer(function(input, output,session) {
       x = seq(-5, att() + 5, .5)
     }
     ggplot(x = x, y = seq(0, 1, .1)) + 
-      geom_vline(aes(xintercept = 0, colour = 'true_att')) + 
-      geom_vline(xintercept = att(), linetype = 'dashed') +
+      geom_vline(aes(xintercept = 0, colour = 'True ATT')) + 
+      geom_vline(aes(xintercept = newEntry()$ATT, group = factor(newEntry()$Number), colour = factor(newEntry()$Number)), linetype = 'dashed') + 
       #scale_x_continuous(breaks=seq(0,1,.05), limits = c(-.01, 1.01), expand = expansion()) + 
       #scale_y_continuous(labels = NULL, breaks = NULL) + 
-      labs(y = "", x = 'Average Treatment Effect on Treated (ATT)') + 
+      labs(y = "", x = 'Average Treatment Effect on Treated (ATT)', colour = "Model Number") + 
       theme_classic() + 
       theme(axis.line.y=element_blank(),
             axis.text.y=element_blank(),
@@ -333,11 +362,17 @@ shinyServer(function(input, output,session) {
 
   
   ## Go to define model page after result
-  observeEvent(input$clear, {
+  observeEvent(input$back, {
     updateTabItems(session, "tabs", "model")
   })
 
-
+  ## Go to define model page after result
+  observeEvent(input$clear, {
+    store$df <- data.frame(Number = integer(), Model = character(), Variables = character(),
+                           Matching = character(), ATT = numeric())
+    store$number_of_models <- 0
+    updateTabItems(session, "tabs", "model")
+  })
 
 
   
