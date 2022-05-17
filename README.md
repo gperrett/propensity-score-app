@@ -24,7 +24,7 @@ We created various different prototype designs for how to structure this applica
 
 Our next steps in improving this application are:
 * 1. Conduct user research: 
-*   we want our users to provide feedbacks after using our application so we can improve it. To collect feedbacks, we will recruit 100 users to use our application, and ask them to provide us with their experience of using the application afterward. In addition to user experience, we also want to know if the application helps our users learn. Thereofre, all recruited users would be asked to complete a quiz after using the application. In the future, to coninously obtain user feedbacks, we will build a feedback page on our application and allow users to submit feedbacks online. 
+  *   we want our users to provide feedbacks after using our application so we can improve it. To collect feedbacks, we will recruit 100 users to use our application, and ask them to provide us with their experience of using the application afterward. In addition to user experience, we also want to know if the application helps our users learn. Thereofre, all recruited users would be asked to complete a quiz after using the application. In the future, to coninously obtain user feedbacks, we will build a feedback page on our application and allow users to submit feedbacks online. 
 * 2. 
 
 
