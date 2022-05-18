@@ -73,7 +73,7 @@ fit_bart_model = function(model_formula, data){
 shinyServer(function(input, output,session) {
 
   ## Load dataset
-  data <- read.csv('../data/simwoutcome.csv')
+  data <- read.csv('simwoutcome.csv')
   #data = read.csv('~/Desktop/propensity-score-app/data/simwoutcome.csv')
     # read.csv(paste0(getwd(),'/data/simdata.csv'))
   
