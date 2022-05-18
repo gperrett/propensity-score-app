@@ -166,10 +166,10 @@ shinyServer(function(input, output,session) {
   # ## Gather all predictors
   predictors=reactive({
     predictors = input$predictors
-    if(!is.null(input$interactterm)){
+    if(!is.null(input$interactterm) & input$models == 'Logistic Regression'){
       predictors = c(predictors, unique(unlist(str_split(input$interactterm, pattern  ="\\*"))))
     }
-    if(!is.null(input$polyterm)){
+    if(!is.null(input$polyterm) & input$models == 'Logistic Regression'){
       polyterms = str_remove(input$polyterm, "[2]")
       polyterms = str_remove(polyterms, "[\\^]")
       polyterms = str_remove(polyterms, "[I]")
@@ -177,6 +177,7 @@ shinyServer(function(input, output,session) {
       polyterms = str_remove(polyterms, "[)]")
       predictors = c(predictors,polyterms)
     }
+    predictors = predictors
   })
   
   #make sure at least 1 predictor is selected
