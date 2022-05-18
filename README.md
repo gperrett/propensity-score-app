@@ -26,14 +26,12 @@ Our next steps in improving this application are:
 * 1. Conduct user research
   *  We want our users to provide feedback after using our application so we can improve it. To collect feedback, we will recruit users from a causal inference class to use our application, and ask them to provide us with their experience of using the application afterward. In addition to user experience, we also want to know if the application helps our users learn. Therefore, all recruited users would be asked to complete a quiz after using the application. 
   *   In the future, to coninously obtain user feedbacks, we will build a feedback page on our application and allow users to submit feedback online. 
-* 2. Establish cloud access
-  *  Currently, our application runs locally. A user cannot access the application without downloading the source code. Deploying our application to the cloud allows users to use our application anytime at anywhere, which could improve user experience. 
-* 3. More options for polynomial terms
+* 2. More options for polynomial terms
   *  In our application, we only allows the variables in the polynomial regression propensity score model to be squared. In the future, we want to add the option to allow users to define powers in variables. 
-* 4. Improve some usability features
+* 3. Improve some usability features
   *  There are more enhancements that can be made to the application, such as resetting all predictor features when the user clicks 'Define Model' or 'Clear Models'. After more user testing, there will surely be more usability enhancements that can be made. We want to make sure this application is simple, easy to use, and to the point. 
-* 5. Allow for customized datasets
-  * It might be helpful to allow user to upload their own datasets. This could help them understand the variation in results from propensity score matching within the context of their own research, which might make the application a more powerful and understandable tool. 
+* 4. Allow for customized datasets
+  * It might be helpful to allow users to upload their own datasets. This could help them understand the variation in results from propensity score matching within the context of their own research, which might make the application a more powerful tool. While they wouldn't be able to see the true ATT, users would be able to visualize the unreliability in the various estimates provided by this method.  
   
 Link to App: https://propensity-simulation.shinyapps.io/code/
 
