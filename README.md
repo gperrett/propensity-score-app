@@ -33,6 +33,6 @@ Our next steps in improving this application are:
 * 4. Improve some usability features
   *  There are more enhancements that can be made to the application, such as resetting all predictor features when the user clicks 'Define Model' or 'Clear Models'. After more user testing, there will surely be more usability enhancements that can be made. We want to make sure this application is simple, easy to use, and to the point. 
 
-
+Link to App: https://propensity-simulation.shinyapps.io/code/
 
 
