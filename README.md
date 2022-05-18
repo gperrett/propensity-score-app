@@ -32,7 +32,9 @@ Our next steps in improving this application are:
   *  In our application, we only allows the variables in the polynomial regression propensity score model to be squared. In the future, we want to add the option to allow users to define powers in variables. 
 * 4. Improve some usability features
   *  There are more enhancements that can be made to the application, such as resetting all predictor features when the user clicks 'Define Model' or 'Clear Models'. After more user testing, there will surely be more usability enhancements that can be made. We want to make sure this application is simple, easy to use, and to the point. 
-
+* 5. Allow for customized datasets
+  * It might be helpful to allow user to upload their own datasets. This could help them understand the variation in results from propensity score matching within the context of their own research, which might make the application a more powerful and understandable tool. 
+  
 Link to App: https://propensity-simulation.shinyapps.io/code/
 
 
